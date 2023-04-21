@@ -135,7 +135,8 @@ impl Model {
             .is_ok());
         self.lyric_update_title();
         let lyric_line = self.lyric_line.clone();
-        self.lyric_set_lyric(&lyric_line);
+        let lyric_last = self.lyric_last.clone();
+        self.lyric_set_lyric(&lyric_line, &lyric_last);
     }
 
     pub fn lyric_update_for_podcast_by_current_track(&mut self) {
@@ -260,12 +261,12 @@ impl Model {
             return;
         }
         if self.player.playlist.is_stopped() {
-            self.lyric_set_lyric("Stopped.");
+            self.lyric_set_lyric("Stopped.", "");
             return;
         }
         if let Some(song) = self.player.playlist.current_track() {
             if song.lyric_frames_is_empty() {
-                self.lyric_set_lyric("No lyrics available.");
+                self.lyric_set_lyric("No lyrics available.", "");
                 return;
             }
 
@@ -281,19 +282,24 @@ impl Model {
             if self.lyric_line == line {
                 return;
             }
-            self.lyric_set_lyric(&line);
+            let last = self.lyric_line.clone();
+            self.lyric_set_lyric(&line, &last);
             self.lyric_line = line;
+            self.lyric_last = last;
         }
     }
 
-    fn lyric_set_lyric(&mut self, text: &str) {
+    fn lyric_set_lyric(&mut self, text: &str, last: &str) {
         self.app
             .attr(
                 &Id::Lyric,
                 Attribute::Text,
-                AttrValue::Payload(PropPayload::Vec(vec![PropValue::TextSpan(TextSpan::from(
-                    text,
-                ))])),
+                AttrValue::Payload(PropPayload::Vec(vec![
+                    PropValue::TextSpan(
+                        TextSpan::new(last).fg(tuirealm::tui::style::Color::DarkGray),
+                    ),
+                    PropValue::TextSpan(TextSpan::new(text).fg(tuirealm::tui::style::Color::Red)),
+                ])),
             )
             .ok();
     }

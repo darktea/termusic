@@ -36,7 +36,8 @@ use std::ffi::OsStr;
 use std::fs::rename;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::{Duration, SystemTime};
 
@@ -166,6 +167,14 @@ impl Track {
                                     text: lyrics_frame.content.clone(),
                                 });
                             }
+                        }
+
+                        if let Ok(c) = from_music_path(path.to_str().unwrap()) {
+                            lyric_frames.push(Lyrics {
+                                lang: "en".to_string(),
+                                description: "hello".to_string(),
+                                text: c,
+                            });
                         }
                     }
                     _ => {
@@ -555,4 +564,17 @@ fn create_lyrics(tag: &mut lofty::Tag, lyric_frames: &mut Vec<Lyrics>) {
             });
         }
     }
+}
+
+fn from_music_path(s: &str) -> Result<String> {
+    // change to *.lrc
+    let mut p = PathBuf::from(s);
+    p.set_extension("lrc");
+    let mut f = File::open(p)?;
+    let mut buffer = Vec::new();
+    f.read_to_end(&mut buffer)?;
+
+    let m = String::from_utf8(buffer)?;
+
+    Ok(m)
 }

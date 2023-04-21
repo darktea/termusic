@@ -87,6 +87,7 @@ pub struct Model {
     pub tageditor_song: Option<Track>,
     pub time_pos: i64,
     pub lyric_line: String,
+    pub lyric_last: String,
     youtube_options: YoutubeOptions,
     #[cfg(feature = "cover")]
     pub ueberzug_instance: UeInstance,
@@ -180,6 +181,7 @@ impl Model {
             tageditor_song: None,
             time_pos: 0,
             lyric_line: String::new(),
+            lyric_last: String::new(),
             youtube_options: YoutubeOptions::new(),
             #[cfg(feature = "cover")]
             ueberzug_instance,
